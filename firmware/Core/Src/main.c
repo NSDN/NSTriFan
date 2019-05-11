@@ -47,7 +47,7 @@ IWDG_HandleTypeDef hiwdg;
 TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
-uint8_t pwmValue = 0;
+static uint8_t pwmValue = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,7 +95,10 @@ int main(void)
   MX_IWDG_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,30 +106,25 @@ int main(void)
   while (1) {
 	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 
-	  pwmValue = HAL_GPIO_ReadPin(SPD_0_GPIO_Port, SPD_0_Pin);
-	  pwmValue |= HAL_GPIO_ReadPin(SPD_1_GPIO_Port, SPD_1_Pin) << 1;
-	  pwmValue |= HAL_GPIO_ReadPin(SPD_2_GPIO_Port, SPD_2_Pin) << 2;
-	  pwmValue |= HAL_GPIO_ReadPin(SPD_3_GPIO_Port, SPD_3_Pin) << 3;
+	  pwmValue = !HAL_GPIO_ReadPin(SPD_0_GPIO_Port, SPD_0_Pin);
+	  pwmValue |= !HAL_GPIO_ReadPin(SPD_1_GPIO_Port, SPD_1_Pin) << 1;
+	  pwmValue |= !HAL_GPIO_ReadPin(SPD_2_GPIO_Port, SPD_2_Pin) << 2;
+	  pwmValue |= !HAL_GPIO_ReadPin(SPD_3_GPIO_Port, SPD_3_Pin) << 3;
 	  pwmValue &= 0xF;
-	  pwmValue = 0xF - pwmValue;
 
 	  htim1.Instance->CCR1 = pwmValue;
 	  htim1.Instance->CCR2 = pwmValue;
 	  htim1.Instance->CCR3 = pwmValue;
 	  htim1.Instance->CCR4 = pwmValue;
 
-	  if (HAL_GPIO_ReadPin(CTL_A_GPIO_Port, CTL_A_Pin) == GPIO_PIN_RESET)
-		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
-	  else HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
-	  if (HAL_GPIO_ReadPin(CTL_B_GPIO_Port, CTL_B_Pin) == GPIO_PIN_RESET)
-		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_2);
-	  else HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_2);
-	  if (HAL_GPIO_ReadPin(CTL_C_GPIO_Port, CTL_C_Pin) == GPIO_PIN_RESET)
-		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_3);
-	  else HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_3);
-	  if (HAL_GPIO_ReadPin(CTL_D_GPIO_Port, CTL_D_Pin) == GPIO_PIN_RESET)
-		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_4);
-	  else HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_4);
+	  if (HAL_GPIO_ReadPin(CTL_A_GPIO_Port, CTL_A_Pin) == GPIO_PIN_SET)
+		  htim1.Instance->CCR1 = 0x0;
+	  if (HAL_GPIO_ReadPin(CTL_B_GPIO_Port, CTL_B_Pin) == GPIO_PIN_SET)
+		  htim1.Instance->CCR2 = 0x0;
+	  if (HAL_GPIO_ReadPin(CTL_C_GPIO_Port, CTL_C_Pin) == GPIO_PIN_SET)
+		  htim1.Instance->CCR3 = 0x0;
+	  if (HAL_GPIO_ReadPin(CTL_D_GPIO_Port, CTL_D_Pin) == GPIO_PIN_SET)
+		  htim1.Instance->CCR4 = 0x0;
 
 	  HAL_IWDG_Refresh(&hiwdg);
     /* USER CODE END WHILE */

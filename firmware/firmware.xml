@@ -10,8 +10,8 @@
 ]>
 
 <targetDefinitions>
-  <board id="nstri">
-    <name>NSTRI</name>
+  <board id="firmware">
+    <name>firmware</name>
     <dbgIF>SWD</dbgIF>
     <dbgDEV>ST-Link</dbgDEV>
     <mcuId>stm32f030c8tx</mcuId>
